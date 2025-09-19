@@ -13,46 +13,56 @@
 class Grafo:
   
   def __init__(self, direcionado=False):
-    self.vertices = []
-    self.arestas = []
+    
+    self.lista_adjacencia = {}  
     self.direcionado = direcionado
+    self._num_arestas = 0
 
   def __repr__(self):
     
-    return f'{self.vertices} \n {self.arestas}'
+    if not self.lista_adjacencia:
+        return "Grafo(V=0, E=0)"
+    
+    repr_str = ""
+    for v, vizinhos in self.lista_adjacencia.items():
+        repr_str += f"  {v} -> {sorted(list(vizinhos))}\n"
+    return f"Grafo(V={self.get_numero_vertices()}, E={self.get_numero_arestas()}):\n{repr_str.strip()}"
+
+  def get_numero_vertices(self):
+    return len(self.lista_adjacencia)
+
+  def get_numero_arestas(self):
+    return self._num_arestas
+
+  def get_vertices(self):
+    return list(self.lista_adjacencia.keys())
 
   def inserir_vertice(self, v):
-    
-    if v not in self.vertices:
-      self.vertices.append(v)
+    if v not in self.lista_adjacencia:
+        self.lista_adjacencia[v] = set()
 
   def inserir_aresta(self, u, v):
     
-    if u in self.vertices and v in self.vertices:
-      self.arestas.append((u, v))
-      if not self.direcionado:
-        self.arestas.append((v, u))
+    if v not in self.lista_adjacencia[u]:
+        self.lista_adjacencia[u].add(v)
+        if not self.direcionado:
+            self.lista_adjacencia[v].add(u)
+        self._num_arestas += 1
+
+  def remover_aresta(self, u, v):
+    if self.aresta_pertence(u, v):
+        self.lista_adjacencia[u].remove(v)
+        if not self.direcionado:
+            self.lista_adjacencia[v].remove(u)
+        self._num_arestas -= 1
 
   def aresta_pertence(self, u, v):
-    
-    if u in self.vertices and v in self.vertices:
-      return (u, v) in self.arestas or (v, u) in self.arestas
-    return False
+    if u not in self.lista_adjacencia:
+        return False
+    return v in self.lista_adjacencia[u]
 
   def get_adjacentes(self, v):
-    
-    adjacentes = []
-    
-    if v in self.vertices:
-      for u in self.vertices:
-        if (u, v) in self.arestas or (v,u) in self.arestas:
-          adjacentes.append((u))
-    return adjacentes
-  
-  def remover_aresta(self, u, v):
-    
-      if (u,v) in self.arestas:
-        self.arestas.remove((u,v))
-        if not self.direcionado:
-          self.arestas.remove((v,u))
-      
+    return list(self.lista_adjacencia.get(v, set()))
+
+  def is_direcionado(self):
+    return self.direcionado
