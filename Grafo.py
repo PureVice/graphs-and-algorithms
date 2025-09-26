@@ -105,8 +105,10 @@ class Grafo:
   def dfs(self):
     
       
-    for v in self.lista_adjacencia.items():
-      if(v):
+    for v_tupla in self.lista_adjacencia.items():
+      if(v_tupla):
+        
+        v = self.mapa_id_obj[v_tupla[0]]
         v.marcar()
         
         for u in self.get_adjacentes(v):
