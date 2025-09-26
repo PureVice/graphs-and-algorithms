@@ -38,7 +38,8 @@ g
 # %%
 g.dfs()
 
-# %%
 
+# %%
+g.imprimir_caminho(1, 0)
 
 

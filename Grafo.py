@@ -163,7 +163,7 @@ class Grafo:
       if(v_tupla):
         
         v = self.mapa_id_obj[v_tupla[0]]
-        print(v.get_antecessor())
+        
             
   def __repr__(self):
     
