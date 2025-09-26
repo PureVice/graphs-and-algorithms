@@ -66,6 +66,9 @@ class Grafo:
       
     
   def inserir_aresta(self, u, v):
+    # Garante que ambos os vértices existem antes de criar a aresta
+    self.inserir_vertice(u)
+    self.inserir_vertice(v)
     
     if v not in self.lista_adjacencia[u]:
         self.lista_adjacencia[u].add(v)
@@ -85,40 +88,44 @@ class Grafo:
         return False
     return v in self.lista_adjacencia[u]
 
-  def get_adjacentes(self, v):
-    return list(self.lista_adjacencia.get(v, set()))
+  def get_adjacentes(self, v_id : int):
+    """retorna uma lista de inteiros"""
+    return list(self.lista_adjacencia.get(v_id, set()))
 
+  
   def is_direcionado(self):
     return self.direcionado
   
-  
-  def _dfs(self, v, antecessor, marcado):
+  def reseta_busca(self):
+    """Reseta o estado de todos os vértices para uma nova busca."""
+    for v_obj in self.mapa_id_obj.values():
+      v_obj.desmarcar()
+      v_obj.set_antecessor(-1)
     
-      if (not marcado):
-        v.marcar()
-        
-      for u in self.get_adjacentes(v):
-        if not u.esta_marcado:
-          u.set_antecessor(v)
-          self._dfs(u, u.get_antecessor(), u.esta_marcado())
+  
+  def _dfs(self, v : Vertice):
+
+    v.marcar()
+      
+    for u in self.get_adjacentes(v.index):
+      u = self.mapa_id_obj[u]
+      
+      if not u.esta_marcado():
+        u.set_antecessor(v)
+        print(v)
+        self._dfs(u)
           
   def dfs(self):
     
+    self.reseta_busca()
       
     for v_tupla in self.lista_adjacencia.items():
       if(v_tupla):
         
         v = self.mapa_id_obj[v_tupla[0]]
-        v.marcar()
-        
-        for u in self.get_adjacentes(v):
-          antecessor = u.get_antecessor()
-          if u.esta_marcado:
-            
-            self._dfs(u, v, antecessor, True)
-            
-          else: 
-            self._dfs(u, v, antecessor, False)
+                
+        if not v.esta_marcado():
+          self._dfs(v)
             
   def __repr__(self):
     
