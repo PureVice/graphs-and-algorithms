@@ -25,8 +25,7 @@ class Vertice:
     else: 
       marca = 'N'
     representacao = f"""ID: {self.index} 
-                    Marcado: {marca}
-                    Antecessor: {self.antecessor} \n"""
+                    \n"""
     return representacao
   
   def marcar(self):
@@ -96,6 +95,40 @@ class Grafo:
   def is_direcionado(self):
     return self.direcionado
   
+  
+  
+
+  def imprimir_caminho(self, origem_id, destino_id):
+    """
+    Imprime o caminho de um vértice de origem até um de destino,
+    após a execução de um algoritmo de busca como DFS ou BFS.
+    """
+    # 1. Validação se os vértices existem no grafo
+    if origem_id not in self.mapa_id_obj or destino_id not in self.mapa_id_obj:
+        print("Erro: Vértice de origem ou destino não encontrado no grafo.")
+        return
+
+    caminho = []
+    v_atual = self.mapa_id_obj[destino_id]
+
+    # 2. Percorre a trilha de antecessores do destino até a origem
+    while v_atual != -1: # O antecessor inicial é -1
+        caminho.append(v_atual.index)
+        if v_atual.index == origem_id:
+            break # Chegamos na origem
+        v_atual = v_atual.get_antecessor()
+
+    # 3. Inverte a lista para a ordem correta (origem -> destino)
+    caminho.reverse()
+
+    # 4. Verifica se o caminho encontrado realmente começa na origem
+    if caminho and caminho[0] == origem_id:
+        # Usa ' -> '.join() para formatar a saída de forma elegante
+        print(f"Caminho de {origem_id} para {destino_id}: {' -> '.join(map(str, caminho))}")
+    else:
+        print(f"Não existe caminho de {origem_id} para {destino_id}.")
+        
+        
   def reseta_busca(self):
     """Reseta o estado de todos os vértices para uma nova busca."""
     for v_obj in self.mapa_id_obj.values():
@@ -112,7 +145,6 @@ class Grafo:
       
       if not u.esta_marcado():
         u.set_antecessor(v)
-        print(v)
         self._dfs(u)
           
   def dfs(self):
@@ -126,6 +158,12 @@ class Grafo:
                 
         if not v.esta_marcado():
           self._dfs(v)
+          
+    for v_tupla in self.lista_adjacencia.items():
+      if(v_tupla):
+        
+        v = self.mapa_id_obj[v_tupla[0]]
+        print(v.get_antecessor())
             
   def __repr__(self):
     
