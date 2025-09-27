@@ -36,10 +36,11 @@ print(f"arestas: {num_arestas} \nvertices: {num_vertices}")
 g
 
 # %%
-g.dfs()
+#g.dfs()
+
+g.dfs_iterativa(1)
+# %%
+g.imprimir_caminho(0, 1)
 
 
 # %%
-g.imprimir_caminho(1, 0)
-
-

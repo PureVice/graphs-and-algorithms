@@ -9,6 +9,7 @@
 # *   Remover aresta do grafo
 # *   Obter número de vértices e arestas
 # *   Determinar se grafo é direcionado ou não
+import heapq
 
 class Vertice:
   
@@ -53,6 +54,7 @@ class Grafo:
     self._num_arestas = 0
     self.mapa_id_obj = {}
     self.lista_adjacencia = {}  
+    self.pilha = []
     
   def inserir_vertice(self, v):
     if v not in self.lista_adjacencia:
@@ -184,4 +186,20 @@ class Grafo:
   def get_vertices(self):
     return list(self.lista_adjacencia.keys())
 
+  
+  def dfs_iterativa(self, v : int):
+    v = self.mapa_id_obj[v]
+    
+    heapq.heappush(self.pilha, v)
+    while (len(self.pilha)>0):
+      v = heapq.heappop(self.pilha)
+      if (not v.esta_marcado()):
+        v.marcar()
+        for u in self.get_adjacentes(v.index):
+          u = self.mapa_id_obj[u]
+          if (u.get_antecessor() == -1):
+            u.set_antecessor(v)
+          heapq.heappush(self.pilha, u)
+    
+    
           
