@@ -39,7 +39,7 @@ g
 # %%
 #g.dfs()
 
-g.dfs_iterativa(3)
+g.bfs(3)
 # %%
 
 g.imprimir_caminho(1, 4)

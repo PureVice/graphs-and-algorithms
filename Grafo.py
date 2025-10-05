@@ -1,5 +1,6 @@
 from Vertice import Vertice
-  
+from collections import deque
+
 class Grafo:
   
   def __init__(self, direcionado=False):
@@ -9,7 +10,7 @@ class Grafo:
     self._num_arestas = 0
     self.mapa_id_obj = {}
     self.lista_adjacencia = {}  
-    self.pilha = []
+    
     
   def inserir_vertice(self, v):
     if v not in self.lista_adjacencia:
@@ -57,7 +58,7 @@ class Grafo:
 
   def imprimir_caminho(self, origem_id, destino_id, caminho=[]):
     
-    self.dfs_iterativa(origem_id)
+    self.bfs(origem_id)
     """
     Imprime o caminho de um vértice de origem até um de destino,
     após a execução de um algoritmo de busca como DFS ou BFS.
@@ -129,9 +130,9 @@ class Grafo:
     return list(self.lista_adjacencia.keys())
 
   
-  def dfs_iterativa(self, v : int):
+  def dfs(self, v : int):
     self.reseta_busca()
-    pilha = []
+    pilha = deque()
     v_objeto = self.mapa_id_obj[v]
     pilha.append(v)
     while (len(pilha)>0):
@@ -144,6 +145,22 @@ class Grafo:
           if (u_objeto.get_antecessor() == -1):
             u_objeto.set_antecessor(v)
             pilha.append(u)
+  
+  
+  def bfs(self, v : int):
+    self.reseta_busca()
+    fila = deque()
+    v_objeto = self.mapa_id_obj[v]
+    fila.append(v)
+    while (len(fila)>0):
+      v = fila.popleft()
+      v_objeto = self.mapa_id_obj[v]        
+      for u in self.get_adjacentes(v_objeto.index):
+        u_objeto = self.mapa_id_obj[u]
+        if (u_objeto.get_antecessor() == -1):
+          u_objeto.set_antecessor(v)
+          u_objeto.marcar()
+          fila.append(u)  
     
     
           
