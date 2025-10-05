@@ -4,13 +4,27 @@ from collections import deque
 class Grafo:
   
   def __init__(self, direcionado=False):
-    
-    
     self.direcionado = direcionado
     self._num_arestas = 0
     self.mapa_id_obj = {}
     self.lista_adjacencia = {}  
     
+  def __repr__(self):
+    if not self.lista_adjacencia:
+        return "Grafo(V=0, E=0)"
+    repr_str = ""
+    for v, vizinhos in self.lista_adjacencia.items():
+        repr_str += f"  {v} -> {sorted(list(vizinhos))}\n"
+    return f"Grafo(V={self.get_numero_vertices()}, E={self.get_numero_arestas()}):\n{repr_str.strip()}"
+
+  def get_numero_vertices(self):
+    return len(self.lista_adjacencia)
+
+  def get_numero_arestas(self):
+    return self._num_arestas
+
+  def get_vertices(self):
+    return list(self.lista_adjacencia.keys())  
     
   def inserir_vertice(self, v):
     if v not in self.lista_adjacencia:
@@ -34,13 +48,13 @@ class Grafo:
         self._num_arestas += 1
 
   def remover_aresta(self, u, v):
-    if self.aresta_pertence(u, v):
+    if self.aresta_existe(u, v):
         self.lista_adjacencia[u].remove(v)
         if not self.direcionado:
             self.lista_adjacencia[v].remove(u)
         self._num_arestas -= 1
 
-  def aresta_pertence(self, u, v):
+  def aresta_existe(self, u, v):
     if u not in self.lista_adjacencia:
         return False
     return v in self.lista_adjacencia[u]
@@ -49,13 +63,9 @@ class Grafo:
     """retorna uma lista de inteiros"""
     return list(self.lista_adjacencia.get(v_id, set()))
 
-  
   def is_direcionado(self):
     return self.direcionado
   
-  
-  
-
   def imprimir_caminho(self, origem_id, destino_id, caminho=[]):
     
     self.bfs(origem_id)
@@ -109,27 +119,6 @@ class Grafo:
         
         v = self.mapa_id_obj[v_tupla[0]]
         
-            
-  def __repr__(self):
-    
-    if not self.lista_adjacencia:
-        return "Grafo(V=0, E=0)"
-    
-    repr_str = ""
-    for v, vizinhos in self.lista_adjacencia.items():
-        repr_str += f"  {v} -> {sorted(list(vizinhos))}\n"
-    return f"Grafo(V={self.get_numero_vertices()}, E={self.get_numero_arestas()}):\n{repr_str.strip()}"
-
-  def get_numero_vertices(self):
-    return len(self.lista_adjacencia)
-
-  def get_numero_arestas(self):
-    return self._num_arestas
-
-  def get_vertices(self):
-    return list(self.lista_adjacencia.keys())
-
-  
   def dfs(self, v : int):
     self.reseta_busca()
     pilha = deque()
@@ -145,7 +134,6 @@ class Grafo:
           if (u_objeto.get_antecessor() == -1):
             u_objeto.set_antecessor(v)
             pilha.append(u)
-  
   
   def bfs(self, v : int):
     self.reseta_busca()
