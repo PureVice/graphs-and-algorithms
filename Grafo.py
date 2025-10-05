@@ -100,37 +100,24 @@ class Grafo:
   
   
 
-  def imprimir_caminho(self, origem_id, destino_id):
+  def imprimir_caminho(self, origem_id, destino_id, caminho=[]):
+    
+    self.dfs_iterativa(origem_id)
     """
     Imprime o caminho de um vértice de origem até um de destino,
     após a execução de um algoritmo de busca como DFS ou BFS.
     """
-    # 1. Validação se os vértices existem no grafo
-    if origem_id not in self.mapa_id_obj or destino_id not in self.mapa_id_obj:
-        print("Erro: Vértice de origem ou destino não encontrado no grafo.")
-        return
-
-    caminho = []
-    v_atual = self.mapa_id_obj[destino_id]
-
-    # 2. Percorre a trilha de antecessores do destino até a origem
-    while v_atual != -1: # O antecessor inicial é -1
-        caminho.append(v_atual.index)
-        if v_atual.index == origem_id:
-            break # Chegamos na origem
-        v_atual = v_atual.get_antecessor()
-
-    # 3. Inverte a lista para a ordem correta (origem -> destino)
-    caminho.reverse()
-
-    # 4. Verifica se o caminho encontrado realmente começa na origem
-    if caminho and caminho[0] == origem_id:
-        # Usa ' -> '.join() para formatar a saída de forma elegante
-        print(f"Caminho de {origem_id} para {destino_id}: {' -> '.join(map(str, caminho))}")
+    v_destino = self.mapa_id_obj[destino_id]
+    if v_destino.get_antecessor() != -1 and v_destino.get_antecessor() != origem_id:
+      v_antecessor : Vertice = self.mapa_id_obj[v_destino.get_antecessor()]
+      caminho.append(v_antecessor.index)
+      self.imprimir_caminho(origem_id, v_antecessor.index)
     else:
-        print(f"Não existe caminho de {origem_id} para {destino_id}.")
-        
-        
+      caminho.append(origem_id)
+      caminho.reverse()
+      
+      for v in caminho: print(v)
+      
   def reseta_busca(self):
     """Reseta o estado de todos os vértices para uma nova busca."""
     for v_obj in self.mapa_id_obj.values():
@@ -149,7 +136,7 @@ class Grafo:
         u.set_antecessor(v)
         self._dfs(u)
           
-  def dfs(self):
+  def dfs_recursiva(self):
     
     self.reseta_busca()
       
@@ -188,18 +175,20 @@ class Grafo:
 
   
   def dfs_iterativa(self, v : int):
-    v = self.mapa_id_obj[v]
-    
-    heapq.heappush(self.pilha, v)
-    while (len(self.pilha)>0):
-      v = heapq.heappop(self.pilha)
-      if (not v.esta_marcado()):
-        v.marcar()
-        for u in self.get_adjacentes(v.index):
-          u = self.mapa_id_obj[u]
-          if (u.get_antecessor() == -1):
-            u.set_antecessor(v)
-          heapq.heappush(self.pilha, u)
+    self.reseta_busca()
+    pilha = []
+    v_objeto = self.mapa_id_obj[v]
+    pilha.append(v)
+    while (len(pilha)>0):
+      v = pilha.pop()
+      v_objeto = self.mapa_id_obj[v]
+      if (not v_objeto.esta_marcado()):
+        v_objeto.marcar()
+        for u in self.get_adjacentes(v_objeto.index):
+          u_objeto = self.mapa_id_obj[u]
+          if (u_objeto.get_antecessor() == -1):
+            u_objeto.set_antecessor(v)
+            pilha.append(u)
     
     
           

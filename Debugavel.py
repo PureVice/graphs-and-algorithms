@@ -8,7 +8,7 @@ import Grafo as g_lib
 
 # %%
 g = g_lib.Grafo()
-lista = [0, 1, 2, 3, 4, 5, 6]
+lista = [0, 1, 2, 3, 4, 5, 6, 7]
 g.inserir_lista_vertices(lista)
 
 
@@ -17,13 +17,14 @@ g.inserir_lista_vertices(lista)
 g
 
 # %%
-g.inserir_aresta(0,1)
-g.inserir_aresta(1,3)
-g.inserir_aresta(1,2)
-g.inserir_aresta(2,3)
-g.inserir_aresta(2,4)
-g.inserir_aresta(4,6)
-g.inserir_aresta(6,5)
+g.inserir_aresta(1, 5)
+g.inserir_aresta(2, 4)
+g.inserir_aresta(2, 6)
+g.inserir_aresta(3, 5)
+g.inserir_aresta(3, 7)
+g.inserir_aresta(4, 7)
+g.inserir_aresta(5, 6)
+g.inserir_aresta(6, 7)
 
 
 # %%
@@ -38,9 +39,11 @@ g
 # %%
 #g.dfs()
 
-g.dfs_iterativa(1)
+g.dfs_iterativa(3)
 # %%
-g.imprimir_caminho(0, 1)
+
+g.imprimir_caminho(1, 4)
+
 
 
 # %%
