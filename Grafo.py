@@ -89,6 +89,8 @@ class Grafo:
     for v_obj in self.mapa_id_obj.values():
       v_obj.desmarcar()
       v_obj.set_antecessor(-1)
+      v_obj.tempo_d = 0
+      v_obj.tempo_f = 0
     
   
   def _dfs(self, v : Vertice):
@@ -113,11 +115,6 @@ class Grafo:
                 
         if not v.esta_marcado():
           self._dfs(v)
-          
-    for v_tupla in self.lista_adjacencia.items():
-      if(v_tupla):
-        
-        v = self.mapa_id_obj[v_tupla[0]]
         
   def dfs(self, v : int):
     self.reseta_busca()
@@ -134,6 +131,41 @@ class Grafo:
           if (u_objeto.get_antecessor() == -1):
             u_objeto.set_antecessor(v)
             pilha.append(u)
+       
+  def _dfs_com_tempo(self, v : Vertice):
+
+    v.marcar()
+    self.tempo += 1
+    v.tempo_d = self.tempo
+    for u in self.get_adjacentes(v.index):
+      u = self.mapa_id_obj[u]
+      
+      if not u.esta_marcado():
+        u.set_antecessor(v)
+        self._dfs_com_tempo(u)
+    self.tempo += 1
+    v.tempo_f = self.tempo    
+              
+  def dfs_com_tempo(self):
+    """retorna o tempo de finalização dos vertices"""
+    self.reseta_busca()
+    tempos = {}
+    self.tempo = 0
+    for v_id in sorted(self.get_vertices()):
+             
+      v = self.mapa_id_obj[v_id]
+              
+      if not v.esta_marcado():
+        self._dfs_com_tempo(v)
+        
+    resultados = {}
+    print("Tempos da DFS:\n")
+    for v_id, v_obj in self.mapa_id_obj.items():
+      resultados[v_id] = {'descoberta': v_obj.tempo_d, 'finalizacao': v_obj.tempo_f}
+      print(f"{v_obj.index} : {v_obj.tempo_d} / {v_obj.tempo_f}")
+    return resultados
+
+
   
   def bfs(self, v : int):
     self.reseta_busca()

@@ -7,24 +7,19 @@ from Grafo import Grafo
 # 
 
 # %%
-g = Grafo()
-lista = [0, 1, 2, 3, 4, 5, 6, 7]
-g.inserir_lista_vertices(lista)
-
-
+g = Grafo(direcionado=True)
 
 # %%
 g
 
 # %%
-g.inserir_aresta(1, 5)
-g.inserir_aresta(2, 4)
-g.inserir_aresta(2, 6)
-g.inserir_aresta(3, 5)
-g.inserir_aresta(3, 7)
-g.inserir_aresta(4, 7)
-g.inserir_aresta(5, 6)
-g.inserir_aresta(6, 7)
+g.inserir_aresta('a', 'b')
+g.inserir_aresta('a', 'c')
+g.inserir_aresta('b', 'd')
+g.inserir_aresta('c', 'b')
+g.inserir_aresta('d', 'c')
+g.inserir_aresta('e', 'd')
+g.inserir_aresta('e', 'f')
 
 
 # %%
@@ -39,10 +34,11 @@ g
 # %%
 #g.dfs()
 
-g.bfs(3)
+tempos = g.dfs_com_tempo()
+
 # %%
 
-g.imprimir_caminho(1, 4)
+g.imprimir_caminho('a', 'e')
 
 
 

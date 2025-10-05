@@ -1,11 +1,12 @@
 class Vertice:
   
-  def __init__(self, index, marcado = False, antecessor = -1): 
+  def __init__(self, index): 
     
     self.index = index
-    self.marcado = marcado
-    self.antecessor = antecessor
-    
+    self.marcado = False
+    self.antecessor = -1
+    self.tempo_d = 0
+    self.tempo_f = 0
   def __repr__(self): 
     
     if self.marcado == True :
