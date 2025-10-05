@@ -1,13 +1,13 @@
 
 # %%
-import Grafo as g_lib
+from Grafo import Grafo
 
 # %% [markdown]
 # Montagem de um grafo arbitrário
 # 
 
 # %%
-g = g_lib.Grafo()
+g = Grafo()
 lista = [0, 1, 2, 3, 4, 5, 6, 7]
 g.inserir_lista_vertices(lista)
 
