@@ -38,7 +38,7 @@ tempos = g.dfs_com_tempo()
 
 # %%
 
-g.imprimir_caminho('a', 'e')
+g.kosaraju()
 
 
 

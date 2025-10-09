@@ -1,4 +1,5 @@
 from Vertice import Vertice
+import Grafo
 from collections import deque
 from typing import Dict, Set, List, Any
 
@@ -16,7 +17,7 @@ class Grafo:
         """
         self.direcionado: bool = direcionado
         self._num_arestas: int = 0
-        self.mapa_id_obj: Dict[int, Vertice] = {}
+        self.mapa_vertices: Dict[int, Vertice] = {}
         self.lista_adjacencia: Dict[int, Set[int]] = {}
 
     def __repr__(self) -> str:
@@ -44,7 +45,7 @@ class Grafo:
         """Insere um vértice no grafo, caso ainda não exista."""
         if v not in self.lista_adjacencia:
             self.lista_adjacencia[v] = set()
-            self.mapa_id_obj[v] = Vertice(v)
+            self.mapa_vertices[v] = Vertice(v)
 
     def inserir_lista_vertices(self, vertices: List[int]) -> None:
         """Insere múltiplos vértices no grafo."""
@@ -114,9 +115,9 @@ class Grafo:
         :param caminho: Lista usada internamente para reconstruir o caminho.
         """
         self.bfs(origem_id)
-        v_destino = self.mapa_id_obj[destino_id]
+        v_destino = self.mapa_vertices[destino_id]
         if v_destino.get_antecessor() != -1 and v_destino.get_antecessor() != origem_id:
-            v_antecessor: Vertice = self.mapa_id_obj[v_destino.get_antecessor()]
+            v_antecessor: Vertice = self.mapa_vertices[v_destino.get_antecessor()]
             caminho.append(v_antecessor.index)
             self.imprimir_caminho(origem_id, v_antecessor.index)
         else:
@@ -127,7 +128,7 @@ class Grafo:
 
     def reseta_busca(self) -> None:
         """Reseta o estado de todos os vértices para permitir uma nova busca."""
-        for v_obj in self.mapa_id_obj.values():
+        for v_obj in self.mapa_vertices.values():
             v_obj.desmarcar()
             v_obj.set_antecessor(-1)
             v_obj.tempo_d = 0
@@ -137,7 +138,7 @@ class Grafo:
         """Executa a DFS recursiva a partir de um vértice."""
         v.marcar()
         for u in self.get_adjacentes(v.index):
-            u = self.mapa_id_obj[u]
+            u = self.mapa_vertices[u]
             if not u.esta_marcado():
                 u.set_antecessor(v)
                 self._dfs(u)
@@ -147,7 +148,7 @@ class Grafo:
         self.reseta_busca()
         for v_tupla in self.lista_adjacencia.items():
             if v_tupla:
-                v = self.mapa_id_obj[v_tupla[0]]
+                v = self.mapa_vertices[v_tupla[0]]
                 if not v.esta_marcado():
                     self._dfs(v)
 
@@ -155,15 +156,15 @@ class Grafo:
         """Executa a DFS iterativa a partir de um vértice."""
         self.reseta_busca()
         pilha: deque[int] = deque()
-        v_objeto = self.mapa_id_obj[v]
+        v_objeto = self.mapa_vertices[v]
         pilha.append(v)
         while len(pilha) > 0:
             v = pilha.pop()
-            v_objeto = self.mapa_id_obj[v]
+            v_objeto = self.mapa_vertices[v]
             if not v_objeto.esta_marcado():
                 v_objeto.marcar()
                 for u in self.get_adjacentes(v_objeto.index):
-                    u_objeto = self.mapa_id_obj[u]
+                    u_objeto = self.mapa_vertices[u]
                     if u_objeto.get_antecessor() == -1:
                         u_objeto.set_antecessor(v)
                         pilha.append(u)
@@ -174,46 +175,68 @@ class Grafo:
         self.tempo += 1
         v.tempo_d = self.tempo
         for u in self.get_adjacentes(v.index):
-            u = self.mapa_id_obj[u]
+            u = self.mapa_vertices[u]
             if not u.esta_marcado():
                 u.set_antecessor(v)
                 self._dfs_com_tempo(u)
         self.tempo += 1
         v.tempo_f = self.tempo
 
-    def dfs_com_tempo(self) -> Dict[int, Dict[str, int]]:
+    def dfs_com_tempo(self) -> list[(int,Vertice.index)]:
         """
         Executa a DFS em todos os vértices e registra tempos de descoberta e finalização.
 
         :return: Dicionário com os tempos de descoberta e finalização de cada vértice.
         """
         self.reseta_busca()
-        tempos: Dict[int, Dict[str, int]] = {}
         self.tempo: int = 0
-        for v_id in sorted(self.get_vertices()):
-            v = self.mapa_id_obj[v_id]
-            if not v.esta_marcado():
-                self._dfs_com_tempo(v)
+         #resultados guardados como (tempo de finalização, id do vertice)
+        resultados: list[(int,Vertice.index)] = []
 
-        resultados: Dict[int, Dict[str, int]] = {}
-        print("Tempos da DFS:\n")
-        for v_id, v_obj in self.mapa_id_obj.items():
-            resultados[v_id] = {'descoberta': v_obj.tempo_d, 'finalizacao': v_obj.tempo_f}
-            print(f"{v_obj.index} : {v_obj.tempo_d} / {v_obj.tempo_f}")
+        for v_id in self.get_vertices():
+          v : Vertice = self.mapa_vertices[v_id]
+          if not v.esta_marcado():
+            self._dfs_com_tempo(v)
+          resultados.append((v.tempo_f, v_id)) 
+    
+        # for v_id, v_obj in self.mapa_vertices.items():
+        #     resultados[v_id] = {'descoberta': v_obj.tempo_d, 'finalizacao': v_obj.tempo_f}
         return resultados
 
     def bfs(self, v: int) -> None:
         """Executa a busca em largura (BFS) a partir de um vértice."""
         self.reseta_busca()
         fila: deque[int] = deque()
-        v_objeto = self.mapa_id_obj[v]
+        v_objeto = self.mapa_vertices[v]
         fila.append(v)
         while len(fila) > 0:
             v = fila.popleft()
-            v_objeto = self.mapa_id_obj[v]
+            v_objeto = self.mapa_vertices[v]
             for u in self.get_adjacentes(v_objeto.index):
-                u_objeto = self.mapa_id_obj[u]
+                u_objeto = self.mapa_vertices[u]
                 if u_objeto.get_antecessor() == -1:
                     u_objeto.set_antecessor(v)
                     u_objeto.marcar()
                     fila.append(u)
+
+    def transposto(self) -> Grafo: 
+      """retorna o grafo transposto(com arestas invertidas)"""
+    
+      if (not self.direcionado):
+          return
+      
+    #Kosaraju
+    def kosaraju(self)-> List:
+      tempos_dfs : list[(int,Vertice.index)] = self.dfs_com_tempo()
+
+      while len(tempos_dfs) > 0:
+        pass
+
+      if 1 == 2:
+          pass
+    #Prim
+    #Kruskal
+    #Dijkstra
+    #Bellman-Ford
+    #Capacity-scaling
+    #Ford-Fulkerson
