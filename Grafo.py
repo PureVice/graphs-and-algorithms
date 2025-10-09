@@ -52,15 +52,16 @@ class Grafo:
         for v in vertices:
             self.inserir_vertice(v)
 
-    def inserir_aresta(self, u: int, v: int) -> None:
+    def inserir_aresta(self, u: int, v: int, insere_vertices : bool = True) -> None:
         """
         Insere uma aresta entre os vértices u e v.
 
         :param u: Vértice de origem.
         :param v: Vértice de destino.
         """
-        self.inserir_vertice(u)
-        self.inserir_vertice(v)
+        if(insere_vertices):
+          self.inserir_vertice(u)
+          self.inserir_vertice(v)
 
         if v not in self.lista_adjacencia[u]:
             self.lista_adjacencia[u].add(v)
@@ -178,30 +179,36 @@ class Grafo:
             u = self.mapa_vertices[u]
             if not u.esta_marcado():
                 u.set_antecessor(v)
-                self._dfs_com_tempo(u)
+                self._dfs_com_tempo(u)  
         self.tempo += 1
         v.tempo_f = self.tempo
+        self.resultados.append((v.tempo_f, v.index))
 
-    def dfs_com_tempo(self) -> list[(int,Vertice.index)]:
+    def dfs_com_tempo(self, id_v_inicial:int = None) -> list[(int, int)]:
         """
         Executa a DFS em todos os vértices e registra tempos de descoberta e finalização.
 
         :return: Dicionário com os tempos de descoberta e finalização de cada vértice.
         """
+        
         self.reseta_busca()
-        self.tempo: int = 0
-         #resultados guardados como (tempo de finalização, id do vertice)
-        resultados: list[(int,Vertice.index)] = []
-
-        for v_id in self.get_vertices():
-          v : Vertice = self.mapa_vertices[v_id]
-          if not v.esta_marcado():
-            self._dfs_com_tempo(v)
-          resultados.append((v.tempo_f, v_id)) 
-    
-        # for v_id, v_obj in self.mapa_vertices.items():
-        #     resultados[v_id] = {'descoberta': v_obj.tempo_d, 'finalizacao': v_obj.tempo_f}
-        return resultados
+        self.tempo = 0
+        
+        #resultados guardados como (tempo de finalização, id do vertice)
+        self.resultados: list[tuple[int,Vertice.index]] = []
+        
+        if id_v_inicial is not None:
+          v_inicial : Vertice = self.mapa_vertices[id_v_inicial]
+          if not v_inicial.esta_marcado():
+            self._dfs_com_tempo(v_inicial)
+            
+        else:
+          for v_id in self.get_vertices():
+            v : Vertice = self.mapa_vertices[v_id]
+            if not v.esta_marcado():
+              self._dfs_com_tempo(v)
+            
+        return self.resultados
 
     def bfs(self, v: int) -> None:
         """Executa a busca em largura (BFS) a partir de um vértice."""
@@ -220,20 +227,44 @@ class Grafo:
                     fila.append(u)
 
     def transposto(self) -> Grafo: 
+      
       """retorna o grafo transposto(com arestas invertidas)"""
-    
+
       if (not self.direcionado):
           return
-      
+        
+      grafo_transposto = Grafo(direcionado=True)
+      for id_v in self.lista_adjacencia.keys():
+        for id_u in self.lista_adjacencia[id_v]:
+          grafo_transposto.inserir_aresta(id_u, id_v)
+          
+      return grafo_transposto
+    
     #Kosaraju
     def kosaraju(self)-> List:
+      
+      componentes : list = []
       tempos_dfs : list[(int,Vertice.index)] = self.dfs_com_tempo()
-
+      grafo_reverso : Grafo = self.transposto()
+      visitados : set[int] = set()
       while len(tempos_dfs) > 0:
-        pass
-
-      if 1 == 2:
-          pass
+        
+        vertice = tempos_dfs.pop()[1]
+        
+        componente : list[int] = []
+        lista = grafo_reverso.dfs_com_tempo(vertice)#debu
+        
+        for par_tempo_id in grafo_reverso.dfs_com_tempo(vertice):
+          if (par_tempo_id[1] in visitados):
+            continue
+          componente.append(par_tempo_id[1])
+          visitados.add(par_tempo_id[1])
+          
+        if(componente):
+          componentes.append(componente)
+      
+      #acho que tem problema na logica de direcionamento  
+      return componentes
     #Prim
     #Kruskal
     #Dijkstra

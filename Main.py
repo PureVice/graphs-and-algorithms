@@ -38,7 +38,8 @@ tempos = g.dfs_com_tempo()
 
 # %%
 
-g.kosaraju()
+cfcs = g.kosaraju()
+print(cfcs)
 
 
 
