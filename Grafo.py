@@ -245,10 +245,12 @@ class Grafo:
       """Executa o algoritmo kosaraju-sharir e retorna as componentes fortemente conexas do grafo"""
       
       componentes : list = []
+      #roda uma dfs no grafo e computa os tempos de finalização
       tempos_dfs : list[(int,Vertice.index)] = self.dfs_com_tempo()
       grafo_reverso : Grafo = self.transposto()
       visitados : set[int] = set()
       self.reseta_busca()
+      #roda a dfs no G transposto, só que a pilha de execução é determinada pela dfs anterior
       while len(tempos_dfs) > 0:
         
         v = tempos_dfs.pop()[1]  # pega o vértice com maior tempo de término
