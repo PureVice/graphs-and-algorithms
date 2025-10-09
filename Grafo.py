@@ -248,22 +248,28 @@ class Grafo:
       tempos_dfs : list[(int,Vertice.index)] = self.dfs_com_tempo()
       grafo_reverso : Grafo = self.transposto()
       visitados : set[int] = set()
-      
+      self.reseta_busca()
       while len(tempos_dfs) > 0:
         
-        vertice = tempos_dfs.pop()[1]
-        if vertice in visitados:
-          continue
-        componente : list[int] = []
-                
-        for par_tempo_id in grafo_reverso.dfs_com_tempo(vertice):
-          if (par_tempo_id[1] in visitados):
-            continue
-          componente.append(par_tempo_id[1])
-          visitados.add(par_tempo_id[1])
-          
-        if(componente):
-          componentes.append(componente)
+        v = tempos_dfs.pop()[1]  # pega o vértice com maior tempo de término
+        if v not in visitados:
+            componente = []
+            pilha = [v]
+
+            # DFS iterativa no grafo transposto
+            while pilha:
+                atual = pilha.pop()
+                if atual not in visitados:
+                    visitados.add(atual)
+                    componente.append(atual)
+
+                    # adiciona todos os adjacentes não visitados
+                    for vizinho in grafo_reverso.get_adjacentes(atual):
+                        if vizinho not in visitados:
+                            pilha.append(vizinho)
+
+            componentes.append(componente)
+
       
       #acho que tem problema na logica de direcionamento  
       return componentes
