@@ -239,21 +239,21 @@ class Grafo:
           grafo_transposto.inserir_aresta(id_u, id_v)
           
       return grafo_transposto
-    
-    #Kosaraju
+  
     def kosaraju(self)-> List:
+      
+      """Executa o algoritmo kosaraju-sharir e retorna as componentes fortemente conexas do grafo"""
       
       componentes : list = []
       tempos_dfs : list[(int,Vertice.index)] = self.dfs_com_tempo()
       grafo_reverso : Grafo = self.transposto()
       visitados : set[int] = set()
+      
       while len(tempos_dfs) > 0:
-        
+    
         vertice = tempos_dfs.pop()[1]
-        
         componente : list[int] = []
-        lista = grafo_reverso.dfs_com_tempo(vertice)#debu
-        
+                
         for par_tempo_id in grafo_reverso.dfs_com_tempo(vertice):
           if (par_tempo_id[1] in visitados):
             continue
