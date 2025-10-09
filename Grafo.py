@@ -250,8 +250,10 @@ class Grafo:
       visitados : set[int] = set()
       
       while len(tempos_dfs) > 0:
-    
+        
         vertice = tempos_dfs.pop()[1]
+        if vertice in visitados:
+          continue
         componente : list[int] = []
                 
         for par_tempo_id in grafo_reverso.dfs_com_tempo(vertice):
