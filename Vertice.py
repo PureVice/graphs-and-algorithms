@@ -10,6 +10,7 @@ class Vertice:
     self.antecessor : int | Vertice = -1
     self.tempo_d : int = 0
     self.tempo_f : int = 0
+    self.rotulo : float = 'inf' # infinito por padrão para os algoritmos de prim e djikstra
 
   def __repr__(self) -> str: 
     """Retorna uma representação em string do vértice."""
@@ -40,4 +41,5 @@ class Vertice:
   def get_antecessor(self) -> Union[int, Vertice]:
     """Retorna o antecessor do vértice."""
     return self.antecessor
+  
   

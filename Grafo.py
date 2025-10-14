@@ -1,3 +1,4 @@
+import heapq
 from Vertice import Vertice
 from collections import deque
 from typing import Dict, Set, List, Tuple, Hashable
@@ -200,3 +201,61 @@ class Grafo:
                 componentes.append(sorted(componente))
 
         return componentes
+    
+class GrafoPonderado(Grafo):
+    
+    def __init__(self, direcionado=False):
+        """cria um Grafo vazio, cujas arestas possuem pesos e vértices possuem rótulos"""
+        super().__init__(self)
+        self.lista_adjacencia : Dict[Hashable, Dict[Hashable, float]] = {}
+        
+        # 'a' : {'b' : 2, 'c' : 3}
+    
+    def __repr__(self):
+        """Retorna representação textual do grafo."""
+        if not self.lista_adjacencia:
+            return "Grafo(V=0, E=0)"
+        repr_str = "\n".join(
+            f"  {v} -> {sorted(list(vizinhos))}"
+            for v, vizinhos in self.lista_adjacencia.items()
+        )
+        return f"Grafo(V={self.get_numero_vertices()}, E={self.get_numero_arestas()}):\n{repr_str}"
+
+        
+    def inserir_vertice(self,v) -> None:
+        
+        if v not in self.lista_adjacencia:
+            self.lista_adjacencia[v] = {}
+            self.mapa_vertices[v] = Vertice(v)
+            
+    def inserir_aresta(self, u, v, peso, insere_vertice = True) -> None:
+        """insere uma aresta ponderada """
+        if not insere_vertice:
+            
+            if u not in self.mapa_vertices.items() or v not in self.mapa_vertices.items():
+                raise Exception() #qual exceção? return ?
+            
+        self.inserir_vertice(u)
+        self.inserir_vertice(v)
+            
+        self.lista_adjacencia[u][v] = peso
+        
+        if(not self.direcionado):
+            self.lista_adjacencia[v][u] = peso
+    
+    def prim(self, v_inicial : int)->Dict:
+        
+        arvore_minima : Dict = {}
+        min_heap : List [tuple[Hashable, float]] = [] # (id, rotulo)
+        heapq.heapify(min_heap)
+        for v in self.lista_adjacencia:
+            heapq.heappush(min_heap, (v, float('inf')))
+            
+        v_inicial_obj : Vertice = self.mapa_vertices[v_inicial]
+        v_inicial_obj.rotulo = 0.0
+        #como eu ordeno tuplas no heap???
+        #como especificar a chave da tupla do heap?
+        heapq.heappop(min_heap)
+        heapq.heappush(min_heap, (v_inicial_obj.index, v_inicial_obj.rotulo))
+        
+        return arvore_minima

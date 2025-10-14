@@ -1,25 +1,32 @@
 
 # %%
-from Grafo import Grafo
+from Grafo import GrafoPonderado
 
 # %% [markdown]
 # Montagem de um grafo arbitrário
 # 
 
 # %%
-g = Grafo(direcionado=True)
+g = GrafoPonderado()
 
 # %%
 g
 
 # %%
-g.inserir_aresta('a', 'b')
-g.inserir_aresta('a', 'c')
-g.inserir_aresta('b', 'd')
-g.inserir_aresta('c', 'b')
-g.inserir_aresta('d', 'c')
-g.inserir_aresta('e', 'd')
-g.inserir_aresta('e', 'f')
+g.inserir_aresta('a', 'b', 4)
+g.inserir_aresta('a', 'h', 8)
+g.inserir_aresta('b', 'h', 11)
+g.inserir_aresta('b', 'c', 8)
+g.inserir_aresta('c', 'i', 2)
+g.inserir_aresta('c', 'f', 4)
+g.inserir_aresta('c', 'd', 7)
+g.inserir_aresta('d', 'e', 9)
+g.inserir_aresta('d', 'f', 14)
+g.inserir_aresta('e', 'f', 10)
+g.inserir_aresta('f', 'g', 2)
+g.inserir_aresta('g', 'i', 6)
+g.inserir_aresta('g', 'h', 1)
+g.inserir_aresta('i', 'h', 7)
 
 
 # %%
@@ -44,3 +51,6 @@ print(cfcs)
 
 
 # %%
+print(g)
+# %%
+g.prim('b')
