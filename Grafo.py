@@ -221,6 +221,13 @@ class GrafoPonderado(Grafo):
         )
         return f"Grafo(V={self.get_numero_vertices()}, E={self.get_numero_arestas()}):\n{repr_str}"
 
+    def reseta_busca(self):
+        for v_obj in self.mapa_vertices.values():
+            v_obj.desmarcar()
+            v_obj.set_antecessor(-1)
+            v_obj.tempo_d = 0
+            v_obj.tempo_f = 0
+            v_obj.rotulo = float('inf')
         
     def inserir_vertice(self,v) -> None:
         
@@ -243,19 +250,44 @@ class GrafoPonderado(Grafo):
         if(not self.direcionado):
             self.lista_adjacencia[v][u] = peso
     
+    def _atualiza_rotulo_heap(self, v : Hashable, peso : float) -> None:
+        # usar heappush
+        i = 0
+        for u_tupla in self.min_heap:
+            if u_tupla[1] == v:
+                self.min_heap[i][0] = peso
+            i+=1
+                
+    
+    
     def prim(self, v_inicial : int)->Dict:
         
+        self.reseta_busca()
         arvore_minima : Dict = {}
-        min_heap : List [tuple[Hashable, float]] = [] # (id, rotulo)
-        heapq.heapify(min_heap)
+        self.min_heap : List [tuple[float, Hashable]] = [] # (rotulo, id)
+        heapq.heapify(self.min_heap)
+        
         for v in self.lista_adjacencia:
-            heapq.heappush(min_heap, (v, float('inf')))
             
-        v_inicial_obj : Vertice = self.mapa_vertices[v_inicial]
-        v_inicial_obj.rotulo = 0.0
-        #como eu ordeno tuplas no heap???
-        #como especificar a chave da tupla do heap?
-        heapq.heappop(min_heap)
-        heapq.heappush(min_heap, (v_inicial_obj.index, v_inicial_obj.rotulo))
+            if v != v_inicial:
+                heapq.heappush(self.min_heap, (float('inf'), v ))
+            else: 
+                heapq.heappush(self.min_heap, (0.0, v ))
+                v_inicial_obj : Vertice = self.mapa_vertices[v_inicial]
+                v_inicial_obj.rotulo = 0.0
+            
+        #como eu ordeno tuplas no heap??? no heapq, as tuplas são ordenadas pelo elemento 0
+        
+        while self.min_heap:
+            min : int = heapq.heappop(self.min_heap)[1]
+            for v in self.get_adjacentes(min):
+                v_obj = self.mapa_vertices[v]
+                if not v_obj.esta_marcado():
+                    v_obj.antecessor = min
+                    peso_aresta = self.lista_adjacencia[min][v] #p(min, v)
+                    self._atualiza_rotulo_heap(v, peso_aresta)
+                    heapq.heappush(self.min_heap)
+                    v.rotulo = peso_aresta
+        
         
         return arvore_minima
