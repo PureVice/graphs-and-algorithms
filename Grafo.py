@@ -78,7 +78,7 @@ class Grafo:
         """Reseta marcações e tempos dos vértices."""
         for v_obj in self.mapa_vertices.values():
             v_obj.desmarcar()
-            v_obj.set_antecessor(-1)
+            v_obj.set_antecessor(None)
             v_obj.tempo_d = 0
             v_obj.tempo_f = 0
 
@@ -206,7 +206,7 @@ class GrafoPonderado(Grafo):
     
     def __init__(self, direcionado=False):
         """cria um Grafo vazio, cujas arestas possuem pesos e vértices possuem rótulos"""
-        super().__init__(self)
+        super().__init__(direcionado)
         self.lista_adjacencia : Dict[Hashable, Dict[Hashable, float]] = {}
         
         # 'a' : {'b' : 2, 'c' : 3}
@@ -224,7 +224,7 @@ class GrafoPonderado(Grafo):
     def reseta_busca(self):
         for v_obj in self.mapa_vertices.values():
             v_obj.desmarcar()
-            v_obj.set_antecessor(-1)
+            v_obj.set_antecessor(None)
             v_obj.tempo_d = 0
             v_obj.tempo_f = 0
             v_obj.rotulo = float('inf')
@@ -249,45 +249,43 @@ class GrafoPonderado(Grafo):
         
         if(not self.direcionado):
             self.lista_adjacencia[v][u] = peso
-    
-    def _atualiza_rotulo_heap(self, v : Hashable, peso : float) -> None:
-        # usar heappush
-        i = 0
-        for u_tupla in self.min_heap:
-            if u_tupla[1] == v:
-                self.min_heap[i][0] = peso
-            i+=1
-                
-    
-    
-    def prim(self, v_inicial : int)->Dict:
-        
+                   
+    def prim(self, v_inicial : int)-> Dict[Hashable, float]: 
         self.reseta_busca()
         arvore_minima : Dict = {}
-        self.min_heap : List [tuple[float, Hashable]] = [] # (rotulo, id)
+        self.min_heap : List [List[float, Hashable]] = [] # (rotulo, id)
         heapq.heapify(self.min_heap)
         
-        for v in self.lista_adjacencia:
-            
+        for v in self.lista_adjacencia:           
             if v != v_inicial:
-                heapq.heappush(self.min_heap, (float('inf'), v ))
+                heapq.heappush(self.min_heap, [float('inf'), v ])
             else: 
-                heapq.heappush(self.min_heap, (0.0, v ))
+                heapq.heappush(self.min_heap, [0.0, v ])
                 v_inicial_obj : Vertice = self.mapa_vertices[v_inicial]
                 v_inicial_obj.rotulo = 0.0
-            
-        #como eu ordeno tuplas no heap??? no heapq, as tuplas são ordenadas pelo elemento 0
-        
+
         while self.min_heap:
-            min : int = heapq.heappop(self.min_heap)[1]
+            par_min = heapq.heappop(self.min_heap)
+            min : Hashable = par_min[1]
+            rotulo_min : float = par_min[0] 
+            
+            min_obj = self.mapa_vertices[min]
+            if min_obj.esta_marcado():
+                continue # já processado antes (duplicata do heap)
+            min_obj.marcar()
+            arvore_minima[min] = (min_obj.antecessor, rotulo_min)
+
             for v in self.get_adjacentes(min):
                 v_obj = self.mapa_vertices[v]
-                if not v_obj.esta_marcado():
+                peso_aresta = self.lista_adjacencia[min][v]
+                if not v_obj.esta_marcado() and peso_aresta < v_obj.rotulo:
+                    
                     v_obj.antecessor = min
-                    peso_aresta = self.lista_adjacencia[min][v] #p(min, v)
-                    self._atualiza_rotulo_heap(v, peso_aresta)
-                    heapq.heappush(self.min_heap)
-                    v.rotulo = peso_aresta
-        
+                    v_obj.rotulo = peso_aresta
+                    #self._atualiza_rotulo_heap(v, peso_aresta)
+                    heapq.heappush(self.min_heap, [peso_aresta, v])
+                    
+
+            
         
         return arvore_minima

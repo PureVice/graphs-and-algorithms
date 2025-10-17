@@ -45,12 +45,13 @@ tempos = g.dfs_com_tempo()
 
 # %%
 
-cfcs = g.kosaraju()
-print(cfcs)
+#cfcs = g.kosaraju()
+#print(cfcs)
 
 
 
 # %%
 print(g)
 # %%
-g.prim('b')
+print(g.prim('a'))
+# %%

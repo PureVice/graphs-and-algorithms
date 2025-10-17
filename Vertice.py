@@ -7,7 +7,7 @@ class Vertice:
     """Inicializa um vértice com um índice único."""  
     self.index : int = index
     self.marcado : bool = False
-    self.antecessor : int | Vertice = -1
+    self.antecessor : int | Vertice = None
     self.tempo_d : int = 0
     self.tempo_f : int = 0
     self.rotulo : float = 'inf' # infinito por padrão para os algoritmos de prim e djikstra
