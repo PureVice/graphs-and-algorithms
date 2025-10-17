@@ -1,4 +1,5 @@
 import heapq
+from DisjointSet import DisjointSet
 from Vertice import Vertice
 from collections import deque
 from typing import Dict, Set, List, Tuple, Hashable
@@ -251,6 +252,7 @@ class GrafoPonderado(Grafo):
             self.lista_adjacencia[v][u] = peso
                    
     def prim(self, v_inicial : int)-> Dict[Hashable, float]: 
+        """retorna a árvore geradora mínima"""
         self.reseta_busca()
         arvore_minima : Dict = {}
         self.min_heap : List [List[float, Hashable]] = [] # (rotulo, id)
@@ -284,8 +286,45 @@ class GrafoPonderado(Grafo):
                     v_obj.rotulo = peso_aresta
                     #self._atualiza_rotulo_heap(v, peso_aresta)
                     heapq.heappush(self.min_heap, [peso_aresta, v])
-                    
-
-            
-        
+    
         return arvore_minima
+    
+    def kruskal(self, v_inicial: Hashable = None) -> Dict[Hashable, Tuple[Hashable, float]]:
+        """
+       retorna a árvore geradora mínima
+        """
+
+        arestas = []
+        for u in self.lista_adjacencia:
+            for v, peso in self.lista_adjacencia[u].items():
+                if self.direcionado or u < v:  # evita duplicatas em grafos não-dirigidos
+                    arestas.append((peso, u, v))
+        arestas.sort()
+
+        dsu = DisjointSet()
+        for vertice in self.get_vertices():
+            dsu.make_set(vertice)
+
+        arvore_minima: Dict[Hashable, Tuple[Hashable, float]] = {}
+
+        for peso, u, v in arestas:
+            if dsu.union(u, v):
+                if v not in arvore_minima and u in arvore_minima:
+                    arvore_minima[v] = (u, peso)
+                elif u not in arvore_minima and v in arvore_minima:
+                    arvore_minima[u] = (v, peso)
+                else:
+                    arvore_minima[v] = (u, peso)
+
+        if v_inicial is not None:
+            raiz_inicial = dsu.find(v_inicial)
+            arvore_minima = {
+                v: (ant, peso)
+                for v, (ant, peso) in arvore_minima.items()
+                if dsu.find(v) == raiz_inicial
+            }
+            if v_inicial not in arvore_minima:
+                arvore_minima[v_inicial] = (None, 0.0)
+
+        return arvore_minima
+

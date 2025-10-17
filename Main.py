@@ -53,5 +53,8 @@ tempos = g.dfs_com_tempo()
 # %%
 print(g)
 # %%
-print(g.prim('a'))
+print(g.kruskal('a'))
+print("########################")
+
 # %%
+print(g.prim('a'))
