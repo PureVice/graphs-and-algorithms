@@ -121,7 +121,6 @@ class Grafo:
         fila: deque[Hashable] = deque([v])
         while fila:
             atual = fila.popleft()
-            v_obj = self.mapa_vertices[atual]
             for u in self.get_adjacentes(atual):
                 u_obj = self.mapa_vertices[u]
                 if not u_obj.esta_marcado():
@@ -411,7 +410,7 @@ class GrafoPonderado(Grafo):
 class GrafoComFluxo(GrafoPonderado):
     """
     extensão GrafoPonderado que permite cálculos de fluxo máximo
-    usando Ford-Fulkerson e Capacity Scaling.
+    usando Ford-Fulkerson e Capacity Scaling
     """
 
     def __init__(self, direcionado=True):
@@ -420,7 +419,7 @@ class GrafoComFluxo(GrafoPonderado):
         self.fluxo: Dict[Tuple[Hashable, Hashable], float] = {}
 
     def inserir_aresta(self, u, v, capacidade, insere_vertice=True):
-        """Insere aresta com capacidade (e cria aresta reversa se necessário)."""
+        """insere aresta com capacidade"""
         super().inserir_vertice(u)
         super().inserir_vertice(v)
         self.lista_adjacencia.setdefault(u, {})[v] = capacidade
@@ -432,7 +431,7 @@ class GrafoComFluxo(GrafoPonderado):
             self.fluxo[(v, u)] = 0
 
     def grafo_residual(self):
-        """Retorna o grafo residual Gf com base no fluxo atual."""
+        """retorna o grafo residual Gf"""
         Gf = GrafoComFluxo(direcionado=True)
         for (u, v), cap in self.capacidade.items():
             fluxo = self.fluxo.get((u, v), 0)
@@ -442,7 +441,7 @@ class GrafoComFluxo(GrafoPonderado):
         return Gf
 
     def caminho_aumentante(self, s, t):
-        """Busca caminho de s até t no grafo residual."""
+        """busca caminho de s até t no grafo residual"""
         pai = {s: None}
         fila = deque([s])
 
@@ -467,11 +466,11 @@ class GrafoComFluxo(GrafoPonderado):
 
 
     def gargalo(self, P):
-        """Retorna o gargalo (capacidade mínima) do caminho P."""
+        """retorna a capacidade mínima do caminho P"""
         return min(self.lista_adjacencia[u][v] for (u, v) in P)
 
     def aumentar_fluxo(self, P):
-        """Aumenta o fluxo ao longo de um caminho P."""
+        """aumenta o fluxo ao longo de um caminho P"""
         r = self.gargalo(P)
         for (u, v) in P:
             # Aresta direta
@@ -483,7 +482,7 @@ class GrafoComFluxo(GrafoPonderado):
         return r
 
     def ford_fulkerson(self, s, t):
-        """Algoritmo de Ford-Fulkerson (Fluxo Máximo)."""
+        """retorna o Fluxo Máximo"""
         for (u, v) in self.capacidade:
             self.fluxo[(u, v)] = 0
 
@@ -500,7 +499,7 @@ class GrafoComFluxo(GrafoPonderado):
         return fluxo_max
 
     def capacity_scalling(self, s, t):
-        """Algoritmo de Capacity Scaling para Fluxo Máximo."""
+        """retorna o Fluxo Máximo"""
         for (u, v) in self.capacidade:
             self.fluxo[(u, v)] = 0
 
