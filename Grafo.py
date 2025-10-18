@@ -407,3 +407,135 @@ class GrafoPonderado(Grafo):
                     if peso_v1 > peso_v2 + p:
                         return False
         return True
+
+class GrafoComFluxo(GrafoPonderado):
+    """
+    extensão GrafoPonderado que permite cálculos de fluxo máximo
+    usando Ford-Fulkerson e Capacity Scaling.
+    """
+
+    def __init__(self, direcionado=True):
+        super().__init__(direcionado)
+        self.capacidade: Dict[Tuple[Hashable, Hashable], float] = {}
+        self.fluxo: Dict[Tuple[Hashable, Hashable], float] = {}
+
+    def inserir_aresta(self, u, v, capacidade, insere_vertice=True):
+        """Insere aresta com capacidade (e cria aresta reversa se necessário)."""
+        super().inserir_vertice(u)
+        super().inserir_vertice(v)
+        self.lista_adjacencia.setdefault(u, {})[v] = capacidade
+        self.capacidade[(u, v)] = capacidade
+        self.fluxo[(u, v)] = 0
+        # Aresta reversa (com capacidade 0, usada no grafo residual)
+        if (v, u) not in self.capacidade:
+            self.capacidade[(v, u)] = 0
+            self.fluxo[(v, u)] = 0
+
+    def grafo_residual(self):
+        """Retorna o grafo residual Gf com base no fluxo atual."""
+        Gf = GrafoComFluxo(direcionado=True)
+        for (u, v), cap in self.capacidade.items():
+            fluxo = self.fluxo.get((u, v), 0)
+            res = cap - fluxo
+            if res > 0:  # ainda há capacidade residual
+                Gf.inserir_aresta(u, v, res)
+        return Gf
+
+    def caminho_aumentante(self, s, t):
+        """Busca caminho de s até t no grafo residual."""
+        pai = {s: None}
+        fila = deque([s])
+
+        while fila:
+            u = fila.popleft()
+            for v in self.lista_adjacencia[u]:
+                if v not in pai and self.lista_adjacencia[u][v] > 0:
+                    pai[v] = u
+                    if v == t:
+                        # reconstrói caminho
+                        P = []
+                        atual = t
+                        while atual is not None:
+                            ant = pai[atual]
+                            if ant is not None:
+                                P.append((ant, atual))
+                            atual = ant
+                        P.reverse()
+                        return P
+                    fila.append(v)
+        return None  # nenhum caminho
+
+
+    def gargalo(self, P):
+        """Retorna o gargalo (capacidade mínima) do caminho P."""
+        return min(self.lista_adjacencia[u][v] for (u, v) in P)
+
+    def aumentar_fluxo(self, P):
+        """Aumenta o fluxo ao longo de um caminho P."""
+        r = self.gargalo(P)
+        for (u, v) in P:
+            # Aresta direta
+            if (u, v) in self.fluxo:
+                self.fluxo[(u, v)] += r
+            # Aresta reversa
+            else:
+                self.fluxo[(v, u)] -= r
+        return r
+
+    def ford_fulkerson(self, s, t):
+        """Algoritmo de Ford-Fulkerson (Fluxo Máximo)."""
+        for (u, v) in self.capacidade:
+            self.fluxo[(u, v)] = 0
+
+        fluxo_max = 0
+        while True:
+            Gf = self.grafo_residual()
+            P = Gf.caminho_aumentante(s, t)
+            if not P:
+                break  # nenhum caminho aumentante restante
+            r = self.gargalo(P)
+            self.aumentar_fluxo(P)
+            fluxo_max += r
+
+        return fluxo_max
+
+    def capacity_scalling(self, s, t):
+        """Algoritmo de Capacity Scaling para Fluxo Máximo."""
+        for (u, v) in self.capacidade:
+            self.fluxo[(u, v)] = 0
+
+        # delta inicial = 2^floor(log2(max capacidade de saída de s))
+        max_cap = max(self.lista_adjacencia[s].values(), default=0)
+        delta = 1
+        while delta * 2 <= max_cap:
+            delta *= 2
+
+        fluxo_max = 0
+        while delta > 0:
+            # Grafo residual delta-filtrado
+            Gf = GrafoComFluxo(direcionado=True)
+            for (u, v), cap in self.capacidade.items():
+                fluxo = self.fluxo.get((u, v), 0)
+                res = cap - fluxo
+                if res >= delta:
+                    Gf.inserir_aresta(u, v, res)
+
+            # enquanto existir caminho aumentante delta-válido
+            while True:
+                P = Gf.caminho_aumentante(s, t)
+                if not P:
+                    break
+                r = self.gargalo(P)
+                self.aumentar_fluxo(P)
+                fluxo_max += r
+                # atualiza grafo residual delta-filtrado
+                Gf = GrafoComFluxo(direcionado=True)
+                for (u, v), cap in self.capacidade.items():
+                    fluxo = self.fluxo.get((u, v), 0)
+                    res = cap - fluxo
+                    if res >= delta:
+                        Gf.inserir_aresta(u, v, res)
+
+            delta //= 2
+
+        return fluxo_max
