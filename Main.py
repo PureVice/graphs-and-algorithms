@@ -57,4 +57,4 @@ print(g.kruskal('a'))
 print("########################")
 
 # %%
-print(g.prim('a'))
+print(g.djikstra('a'))

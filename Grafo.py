@@ -230,6 +230,7 @@ class GrafoPonderado(Grafo):
             v_obj.tempo_f = 0
             v_obj.rotulo = float('inf')
         
+        
     def inserir_vertice(self,v) -> None:
         
         if v not in self.lista_adjacencia:
@@ -328,3 +329,49 @@ class GrafoPonderado(Grafo):
 
         return arvore_minima
 
+    def relaxar(self, u, v, peso)->float:
+        u_obj : Vertice = self.mapa_vertices[u]
+        v_obj : Vertice = self.mapa_vertices[v]
+        v_obj.rotulo = u_obj.rotulo + peso
+        
+        
+        
+        
+    def djikstra(self, v_inicial : Hashable):
+        """retorna os caminhos mínimos a partir de um vértice"""
+        self.reseta_busca()
+        caminho_minimo : Dict = {}
+        self.min_heap : List [List[float, Hashable]] = [] # (rotulo, id)
+        heapq.heapify(self.min_heap)
+        
+        for v in self.lista_adjacencia:           
+            if v != v_inicial:
+                heapq.heappush(self.min_heap, [float('inf'), v ])
+            else: 
+                heapq.heappush(self.min_heap, [0.0, v ])
+                v_inicial_obj : Vertice = self.mapa_vertices[v_inicial]
+                v_inicial_obj.rotulo = 0.0
+
+        while self.min_heap:
+            par_min = heapq.heappop(self.min_heap)
+            min : Hashable = par_min[1]
+            rotulo_min : float = par_min[0] 
+            
+            min_obj = self.mapa_vertices[min]
+            if min_obj.esta_marcado():
+                continue # já processado antes (duplicata do heap)
+            min_obj.marcar()
+            caminho_minimo[min] = (min_obj.antecessor, rotulo_min)
+
+            for v in self.get_adjacentes(min):
+                v_obj = self.mapa_vertices[v]
+                peso_aresta = self.lista_adjacencia[min][v]
+                if not v_obj.esta_marcado() and peso_aresta < v_obj.rotulo:
+                    
+                    v_obj.antecessor = min
+                    self.relaxar(v, min, peso_aresta)
+            
+                    #self._atualiza_rotulo_heap(v, peso_aresta)
+                    heapq.heappush(self.min_heap, [peso_aresta, v])
+    
+        return caminho_minimo
