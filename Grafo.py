@@ -329,7 +329,7 @@ class GrafoPonderado(Grafo):
 
         return arvore_minima
 
-    def relaxar(self, u, v, peso)->float:
+    def relaxar(self, v, u, peso)->float:
         u_obj : Vertice = self.mapa_vertices[u]
         v_obj : Vertice = self.mapa_vertices[v]
         u_obj.rotulo = v_obj.rotulo + peso
@@ -365,7 +365,7 @@ class GrafoPonderado(Grafo):
                 nova_dist = min_obj.rotulo + peso_aresta
                 if not v_obj.esta_marcado() and nova_dist < v_obj.rotulo:     
                     v_obj.antecessor = min
-                    self.relaxar(v, min, peso_aresta)
+                    self.relaxar(min, v, peso_aresta)
                     #self._atualiza_rotulo_heap(v, peso_aresta)
                     heapq.heappush(self.min_heap, [peso_aresta, v])
     
@@ -384,3 +384,26 @@ class GrafoPonderado(Grafo):
             return None  # não há caminho
         return caminho
 
+    def bellman_ford(self, v_inicial):
+        self.reseta_busca()
+                
+        for v in self.lista_adjacencia:           
+            if v == v_inicial: 
+                v_inicial_obj : Vertice = self.mapa_vertices[v_inicial]
+                v_inicial_obj.rotulo = 0.0
+                
+        for i in range(0, self.get_numero_vertices()-1):
+            for v1 in self.lista_adjacencia:
+                for v2 in self.lista_adjacencia[v1]:
+                    p = self.lista_adjacencia[v1][v2]
+                    self.relaxar(v1, v2, p)
+
+        for v1 in self.lista_adjacencia:
+                for v2 in self.lista_adjacencia[v1]:
+                    p = self.lista_adjacencia[v1][v2]
+                    peso_v1 = self.mapa_vertices[v1].rotulo
+                    peso_v2 = self.mapa_vertices[v2].rotulo
+                    
+                    if peso_v1 > peso_v2 + p:
+                        return False
+        return True
